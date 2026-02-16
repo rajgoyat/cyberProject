@@ -4,7 +4,8 @@ import socket
 import threading
 
 app = Flask(__name__)
-CORS(app)
+# Fixed CORS for all origins
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 def scan_ports(target, ports):
     results = []
