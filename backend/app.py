@@ -3,6 +3,7 @@ from flask_cors import CORS
 from pathlib import Path
 import ipaddress
 import json
+import os
 import re
 import socket
 import subprocess
@@ -15,8 +16,18 @@ import urllib.request
 from datetime import datetime, timezone
 
 app = Flask(__name__)
-# Allow the local frontend to call this API (including preflight OPTIONS).
-CORS(app, resources={r"/*": {"origins": "https://cyber-project-one.vercel.app/*"}})
+# CORS origins must be exact origins (no path). Configure via env for deployments.
+default_origins = [
+    "http://localhost:3000",
+    "https://cyber-project-one.vercel.app",
+]
+cors_origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", ",".join(default_origins)).split(",") if origin.strip()]
+CORS(
+    app,
+    resources={r"/*": {"origins": cors_origins}},
+    methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
+)
 data_lock = threading.Lock()
 data_dir = Path(__file__).resolve().parent / "data"
 data_file = data_dir / "scan_results.json"
