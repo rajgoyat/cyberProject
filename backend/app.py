@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 
 app = Flask(__name__)
 # Allow the local frontend to call this API (including preflight OPTIONS).
-CORS(app, resources={r"/*": {"origins": "https://cyberproject-backend.onrender.com/scan"}})
+CORS(app, resources={r"/*": {"origins": "https://cyber-project-one.vercel.app/*"}})
 data_lock = threading.Lock()
 data_dir = Path(__file__).resolve().parent / "data"
 data_file = data_dir / "scan_results.json"
