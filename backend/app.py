@@ -9,11 +9,15 @@ import socket
 import subprocess
 import threading
 import uuid
-import nmap
 import xml.etree.ElementTree as ET
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
+
+try:
+    import nmap
+except ImportError:
+    nmap = None
 
 app = Flask(__name__)
 # CORS origins must be exact origins (no path). Configure via env for deployments.
@@ -454,6 +458,9 @@ def vuln_scan():
     if not target:
         return jsonify({"error": "Target is required"}), 400
 
+    if nmap is None:
+        return jsonify({"error": "python-nmap is not installed on server"}), 500
+
     scan_id = str(uuid.uuid4())
     nm = nmap.PortScanner()
     try:
@@ -518,6 +525,8 @@ def network_recon():
 
         if not hosts:
             # Fallback to python-nmap if command-line nmap is unavailable.
+            if nmap is None:
+                return jsonify({"error": "nmap command unavailable and python-nmap not installed"}), 500
             nm = nmap.PortScanner()
             try:
                 nm.scan(hosts=target, arguments="-sn")
@@ -659,6 +668,8 @@ def vulnerability_scan():
     hosts = parse_nmap_xml(nmap_service_scan["stdout"]) if nmap_service_scan["ok"] else []
 
     if not hosts:
+        if nmap is None:
+            return jsonify({"error": "nmap command unavailable and python-nmap not installed"}), 500
         nm = nmap.PortScanner()
         try:
             nm.scan(hosts=target, arguments="-sV -T4")
