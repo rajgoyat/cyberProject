@@ -30,11 +30,12 @@ function App() {
     setLoading(true);
 
     try {
-      const response = await fetch("https://cyberproject-backend.onrender.com/scan", { // Replace with live URL later
+      const response = await fetch("http://localhost:5000/scan", { // Replace with live URL later
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ target, ports: portList }),
-      });
+      }
+    );
 
       if (!response.ok) {
         setError(`Backend error: ${response.status}`);
@@ -43,6 +44,7 @@ function App() {
       }
 
       const data = await response.json();
+      console.log(data)
       setResults(data.results);
     } catch (err) {
       setError("Failed to connect to backend. Is it running?");
